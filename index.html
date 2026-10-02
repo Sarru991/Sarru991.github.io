@@ -110,6 +110,9 @@ footer .links{display:flex;gap:10px;flex-wrap:wrap}
 /* episode panel */
 dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--text);padding:0;width:min(820px,calc(100% - 32px));max-height:calc(100% - 40px)}
 dialog::backdrop{background:color-mix(in srgb,var(--ink) 80%,transparent)}
+.ep-vid{background:#000;border-radius:12px 12px 0 0;overflow:hidden}
+.ep-vid video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#000}
+.tease{font:italic 600 clamp(17px,2.2vw,20px)/1.35 var(--display);color:var(--gold);letter-spacing:.01em}
 .ep-img{background:#fff}
 .ep-img img{display:block;width:100%;height:auto}
 .ep-body{padding:20px 24px 26px;display:grid;gap:12px}
@@ -134,8 +137,6 @@ dialog::backdrop{background:color-mix(in srgb,var(--ink) 80%,transparent)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 
-</head>
-<body>
 <header class="bar">
   <a class="mark" href="#home" aria-label="Sahil home">SAHIL<span>.</span></a>
   <nav class="nav" aria-label="Sections">
@@ -205,10 +206,12 @@ dialog::backdrop{background:color-mix(in srgb,var(--ink) 80%,transparent)}
 
 <dialog id="ep" aria-labelledby="ep-title">
   <button class="close" type="button" aria-label="Close" data-close>×</button>
+  <div class="ep-vid" hidden><video id="ep-vid" muted playsinline autoplay controls preload="metadata"></video></div>
   <div class="ep-img"><img id="ep-img" alt=""></div>
   <div class="ep-body">
     <div class="tag"><i></i><span id="ep-kind"></span></div>
     <h3 id="ep-title"></h3>
+    <p class="tease" id="ep-tease"></p>
     <p id="ep-text"></p>
     <div class="stats" id="ep-stats"></div>
     <div class="btns" id="ep-btns"></div>
@@ -241,6 +244,15 @@ const SHOWS={
  fc:{kind:"Data · Python",title:"Sales forecasting",soon:true,sub:"Forecasts tested the honest way",key:"In production",
    text:"Demand forecasts for many products with walk-forward testing: simple baselines against machine learning, so you can see which model actually wins. Coming soon.",stats:[],repo:null}
 };
+const TEASE={
+ audit:"Sixty-six percent winners. Zero real edge. One line of code was lying, and this is how it got caught.",
+ risk:"Three trades. One gold whipsaw. A funded account gone in minutes. Then six breaches became zero.",
+ journal:"Your broker shows trades. This shows the truth: the fees, the streaks, the hour you always lose.",
+ cleaner:"Six thousand rows. Nearly a thousand hidden twins. Found, merged and proven right.",
+ first30:"Every guru says the first 30 minutes decide the day. Seven thousand days of data disagree.",
+ myths:"The patterns everyone posts. Twenty-four markets. One honest scoreboard."
+};
+for(const k in TEASE){SHOWS[k].tease=TEASE[k]}
 const SHELVES={
  trading:{id:"trading",title:"Trading tools",note:"MetaTrader and strategy testing",items:["audit","risk","journal"]},
  data:{id:"data",title:"Data work",note:"cleaning, analysis, forecasting",items:["cleaner","ecom","fc"]},
@@ -271,8 +283,12 @@ function openEp(id){
   document.getElementById("ep-kind").textContent=s.kind;
   document.getElementById("ep-title").textContent=s.title;
   document.getElementById("ep-text").textContent=s.text;
-  const im=document.getElementById("ep-img");
-  if(s.soon){im.parentElement.hidden=true}else{im.parentElement.hidden=false;im.src=IMG[s.big];im.alt=s.title+" chart"}
+  document.getElementById("ep-tease").textContent=s.tease||"";
+  const im=document.getElementById("ep-img"), v=document.getElementById("ep-vid");
+  const hasV=!s.soon&&!!TEASE[id];
+  v.parentElement.hidden=!hasV; im.parentElement.hidden=s.soon||hasV;
+  if(hasV){v.poster=`videos/${id}_still.jpg`;v.src=`videos/${id}.mp4`;v.currentTime=0;const p=v.play();if(p)p.catch(()=>{})}
+  else{v.pause();v.removeAttribute("src");if(!s.soon){im.src=IMG[s.big];im.alt=s.title+" chart"}}
   document.getElementById("ep-stats").innerHTML=s.stats.map(([b,t])=>`<div class="stat"><b>${b}</b><span>${t}</span></div>`).join("");
   document.getElementById("ep-btns").innerHTML=s.repo?`<a class="btn play" href="https://github.com/Sarru991/${s.repo}" target="_blank" rel="noopener">View on GitHub</a>`:"";
   if(typeof dlg.showModal==="function"){dlg.showModal()}else{dlg.setAttribute("open","")}
@@ -281,7 +297,9 @@ document.addEventListener("click",e=>{
   const o=e.target.closest("[data-open]"); if(o){openEp(o.dataset.open);return}
   if(e.target.closest("[data-close]")||e.target===dlg){dlg.close?dlg.close():dlg.removeAttribute("open")}
 });
+dlg.addEventListener("close",()=>document.getElementById("ep-vid").pause());
 </script>
+
 
 </body>
 </html>
