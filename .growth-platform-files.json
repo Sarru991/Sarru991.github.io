@@ -1,10 +1,15 @@
 {
   "_note": "Files written by the growth platform. Files not listed here are never touched by it.",
   "files": [
+    "assets/fonts/big-shoulders-display-latin-ext.woff2",
+    "assets/fonts/big-shoulders-display-latin.woff2",
+    "assets/fonts/figtree-latin-ext.woff2",
+    "assets/fonts/figtree-latin.woff2",
     "assets/proof/ai-agent.jpg",
     "assets/proof/backtest-audit.jpg",
     "assets/proof/ea-builder.jpg",
     "assets/proof/excel-cleaning.jpg",
+    "assets/services.css",
     "assets/site.css",
     "google37036ba1c86c933a.html",
     "guides/ea-works-in-backtest-fails-live/index.html",
