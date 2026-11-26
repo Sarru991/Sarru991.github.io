@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Why your EA works in backtest but fails live (8 real reasons)</title>
+<meta name="description" content="The 8 most common reasons an Expert Advisor looks profitable in the MT4/MT5 strategy tester but loses money live, and how to check each one.">
+<link rel="canonical" href="https://sarru991.github.io/guides/ea-works-in-backtest-fails-live/">
+<meta property="og:title" content="Why your EA works in backtest but fails live (8 real reasons)">
+<meta property="og:description" content="The 8 most common reasons an Expert Advisor looks profitable in the MT4/MT5 strategy tester but loses money live, and how to check each one.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sarru991.github.io/guides/ea-works-in-backtest-fails-live/">
+<meta property="og:site_name" content="Sahil Thakur">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Why your EA works in backtest but fails live (8 real reasons)", "description": "The 8 most common reasons an Expert Advisor looks profitable in the MT4/MT5 strategy tester but loses money live, and how to check each one.", "url": "https://sarru991.github.io/guides/ea-works-in-backtest-fails-live/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "headline": "Why your EA works in backtest but fails live (8 real reasons)", "dateModified": "2026-11-26"}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/services/">Sahil Thakur · Trading &amp; WFM tools</a>
+  <nav><a href="/tools/erlang-c-calculator/">Erlang C</a><a href="/tools/prop-firm-drawdown-calculator/">Prop drawdown</a><a href="/tools/backtest-red-flag-checklist/">Backtest check</a><a href="/services/">Services</a></nav>
+</div></header>
+<main class="wrap">
+<article>
+<span class="pill">Guide</span>
+<h1>Why your EA works in backtest but fails live: 8 real reasons</h1>
+<p class="lead">Your Expert Advisor shows a smooth equity curve in the MT4 or MT5 strategy tester. Then it goes live and slowly, or quickly, loses. That gap almost always comes from a short list of causes, and most of them can be checked in an afternoon.</p>
+
+<h2>1. Look-ahead bias: the strategy peeks at the future</h2>
+<p>This is the most dangerous one because the backtest looks <i>excellent</i>. It happens when a decision uses information that would not exist yet at that moment. Common examples: using the current candle's close, high or low to decide an entry on that same candle; confirming a pattern with candles that form after the entry; or using a "previous trade result" that had not actually closed yet when the next trade opened.</p>
+<p><b>How to check:</b> make sure every indicator and price value used for a signal comes from closed candles (shift 1 or more). Then run a <b>one-bar delay test</b>: shift every entry one bar later. A real edge weakens a little; a look-ahead bug usually collapses completely. In my own research this single test exposed results that looked like a strong edge but turned out to be entirely a timing bug.</p>
+
+<h2>2. Costs are set too low</h2>
+<p>The tester's default spread is often tighter than what you get live, especially at session opens, during news and at the daily rollover. Commission may be missing, and stop-loss exits get filled worse than the stop price.</p>
+<p><b>How to check:</b> re-run with the average live spread for your symbol and session, add commission per lot, and add a few points of adverse slippage. If profit drops by more than half, the edge is too thin to survive real trading. Short-timeframe scalpers are hit hardest because costs are a big share of each trade.</p>
+
+<h2>3. Too few trades</h2>
+<p>Forty trades with a 70% win rate can easily be luck. With small samples, a few lucky trades decide the whole result.</p>
+<p><b>How to check:</b> aim for at least 200 trades across different market conditions. If the strategy trades rarely, test more years or more symbols with the same rules.</p>
+
+<h2>4. Overfitting: settings tuned to the past</h2>
+<p>If you optimised many parameters until the curve looked perfect, you probably fitted the noise of that period. Signs: lots of inputs, a suspiciously smooth curve, and results that fall apart when a value changes slightly.</p>
+<p><b>How to check:</b> move each parameter up and down by about 10%. Robust strategies give similar results across a range of values. Fragile ones only work at one magic number.</p>
+
+<h2>5. No out-of-sample test</h2>
+<p>Testing on the same data you tuned on tells you very little. <b>How to check:</b> keep the most recent 25-30% of data aside, tune only on the older part, then test once on the hold-out. If you test the hold-out many times and keep tweaking, it stops being out-of-sample.</p>
+
+<h2>6. Bad data or bad modelling</h2>
+<p>"Open prices only" or low-quality tick data can fill orders inside a bar in ways that never happen live. Odd hours like the broker's daily rollover can contain fake spikes that sweep stops in the backtest but could never be traded.</p>
+<p><b>How to check:</b> use "every tick based on real ticks" in MT5, and look at whether a big share of profit comes from one hour of the day. If a strategy wins 90%+ in one specific window, suspect the data before celebrating.</p>
+
+<h2>7. The edge is no better than random</h2>
+<p>Some strategies only make money because the market drifted in one direction during the test. <b>How to check:</b> compare against random entries with the same session, direction, stop and target. If random entries earn about the same, your signal is not adding anything.</p>
+
+<h2>8. Live trading is different from the tester</h2>
+<p>Slower execution, requotes, VPS downtime, overlapping trades and manual interventions all create gaps. Running several timeframes at once can also stack risk on the same move, which matters a lot under prop-firm loss limits.</p>
+<p><b>How to check:</b> forward-test on demo for a few weeks and compare trade by trade with the tester for the same period.</p>
+
+<h2>Quick summary</h2>
+<ol>
+  <li>Use closed candles only, and run a one-bar delay test.</li>
+  <li>Use realistic spread, commission and slippage.</li>
+  <li>Get 200+ trades.</li>
+  <li>Keep parameters few and check they are robust.</li>
+  <li>Hold out data for one honest out-of-sample test.</li>
+  <li>Use real-tick data and check odd hours.</li>
+  <li>Compare with random entries.</li>
+  <li>Forward-test on demo before going live.</li>
+</ol>
+<p>Want to score your own backtest in two minutes? Use the free <a href="/tools/backtest-red-flag-checklist/">backtest red-flag checklist</a>. If you trade a prop-firm challenge, also check your risk settings with the <a href="/tools/prop-firm-drawdown-calculator/">prop firm drawdown calculator</a>.</p>
+
+<div class="cta">
+  <h3>Want me to audit your backtest?</h3>
+  <p>Send your strategy-tester report and rules. I check for look-ahead bias, cost realism, overfitting, sample size and random-entry baselines, and tell you plainly whether the result is trustworthy.</p>
+  <a class="btn" href="https://www.fiverr.com/sarrugaming/audit-your-trading-backtest-for-hidden-bugs" rel="nofollow">Backtest audit on Fiverr</a>
+  <a class="btn btn-out" href="https://www.fiverr.com/sarrugaming/build-an-automated-trading-algorithm-ea-for-your-strategy" rel="nofollow">Need MQL4 to MQL5 conversion?</a>
+</div>
+<p class="note">Educational content, not financial advice. Backtests and simulations do not guarantee future results.</p>
+</article>
+
+<aside class="related"><h2>Related</h2><ul>
+  <li><a href="/services/">Trading, WFM and analytics services | Sahil Thakur</a></li>
+</ul></aside>
+
+</main>
+<footer><div class="wrap">
+  Free tools by Sahil Thakur. Trading tools are educational and not financial advice; past or simulated results do not guarantee future results. · <a href="/guides/ea-works-in-backtest-fails-live/">Backtest vs live guide</a> · <a href="/guides/erlang-c-explained/">Erlang C guide</a> · <a href="https://www.fiverr.com/sarrugaming" rel="nofollow">Fiverr profile</a>
+</div></footer>
+</body>
+</html>

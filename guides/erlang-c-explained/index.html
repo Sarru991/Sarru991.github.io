@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erlang C explained: a worked call-centre staffing example</title>
+<meta name="description" content="Erlang C explained in plain English with a worked example: traffic intensity, service level, shrinkage and how many agents you really need to schedule.">
+<link rel="canonical" href="https://sarru991.github.io/guides/erlang-c-explained/">
+<meta property="og:title" content="Erlang C explained: a worked call-centre staffing example">
+<meta property="og:description" content="Erlang C explained in plain English with a worked example: traffic intensity, service level, shrinkage and how many agents you really need to schedule.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://sarru991.github.io/guides/erlang-c-explained/">
+<meta property="og:site_name" content="Sahil Thakur">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Erlang C explained: a worked call-centre staffing example", "description": "Erlang C explained in plain English with a worked example: traffic intensity, service level, shrinkage and how many agents you really need to schedule.", "url": "https://sarru991.github.io/guides/erlang-c-explained/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "headline": "Erlang C explained: a worked call-centre staffing example", "dateModified": "2026-11-26"}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/services/">Sahil Thakur · Trading &amp; WFM tools</a>
+  <nav><a href="/tools/erlang-c-calculator/">Erlang C</a><a href="/tools/prop-firm-drawdown-calculator/">Prop drawdown</a><a href="/tools/backtest-red-flag-checklist/">Backtest check</a><a href="/services/">Services</a></nav>
+</div></header>
+<main class="wrap">
+<article>
+<span class="pill">Guide</span>
+<h1>Erlang C explained: a worked call-centre staffing example</h1>
+<p class="lead">Erlang C is the standard formula contact centres use to answer one question: how many agents do we need to answer a given share of calls within a target time? Here is how it works in plain English, with a full example you can check in the free calculator.</p>
+
+<h2>The inputs</h2>
+<ul>
+  <li><b>Call volume</b> for an interval, for example 150 calls between 11:00 and 12:00.</li>
+  <li><b>Average handle time (AHT):</b> talk time plus hold plus after-call work, for example 300 seconds.</li>
+  <li><b>Service-level target:</b> for example 80% of calls answered within 20 seconds ("80/20").</li>
+  <li><b>Shrinkage:</b> the share of paid time agents are not available for calls (breaks, meetings, training, absence), often 25-35%.</li>
+</ul>
+
+<h2>Step 1: traffic intensity</h2>
+<p>Traffic intensity, measured in Erlangs, is how many agents would be busy if calls arrived perfectly evenly:</p>
+<p><b>Traffic = calls × AHT ÷ interval length</b> = 150 × 300 ÷ 3,600 = <b>12.5 Erlangs</b>.</p>
+<p>So you need more than 12.5 agents just to keep up. With exactly 13, queues grow quickly whenever calls bunch together, which they always do.</p>
+
+<h2>Step 2: probability a call waits</h2>
+<p>Erlang C calculates the chance that an arriving call has to wait, given the traffic and a number of agents. With more agents, the chance falls sharply. The formula assumes calls arrive randomly, callers wait in a queue rather than hanging up, and every agent can take every call.</p>
+
+<h2>Step 3: service level</h2>
+<p>From the waiting probability, Erlang C gives the share of calls answered within your target time. You add agents one at a time until you reach the target. In this example:</p>
+<table>
+  <tr><th>Agents</th><th>Service level (20 s)</th><th>Occupancy</th></tr>
+  <tr><td>14</td><td>about 47%</td><td>89%</td></tr>
+  <tr><td>15</td><td>about 66%</td><td>83%</td></tr>
+  <tr><td>16</td><td>about 79%</td><td>78%</td></tr>
+  <tr><td><b>17</b></td><td><b>about 88%</b></td><td><b>74%</b></td></tr>
+</table>
+<p>So <b>17 agents on the phones</b> meets 80/20 for this hour (16 falls just short at 79%). Notice how one agent changes service level by 10-20 points. That is why under-staffing by "just one or two" hurts so much.</p>
+
+<h2>Step 4: add shrinkage</h2>
+<p>If 30% of paid time is lost to breaks, meetings and absence, you must schedule more people than you need on the phones:</p>
+<p><b>Scheduled = on the phones ÷ (1 − shrinkage)</b> = 17 ÷ 0.70 = 24.3, so <b>25 agents</b> (always round up).</p>
+
+<h2>Where Erlang C goes wrong</h2>
+<ul>
+  <li><b>Abandoned calls:</b> real callers hang up. Erlang C ignores this, so it slightly overstates staff needed when abandonment is high.</li>
+  <li><b>Multi-skill queues and chat or email:</b> agents handling several channels need simulation or more advanced models.</li>
+  <li><b>Bad forecasts:</b> the formula is only as good as your call forecast. Forecast each 15- or 30-minute interval from your own history, including day-of-week and seasonal patterns.</li>
+</ul>
+
+<h2>Try it with your own numbers</h2>
+<p>Use the free <a href="/tools/erlang-c-calculator/">Erlang C calculator</a>: enter your calls, AHT, target and shrinkage, and it shows agents needed, scheduled staff, occupancy and average speed of answer, plus what one agent more or fewer does.</p>
+
+<div class="cta">
+  <h3>Need a forecast and staffing plan for every interval?</h3>
+  <p>I forecast call volume from your history and turn it into an Erlang C staffing plan and shift plan, delivered in Excel or Power BI. Background: contact-centre team leader with attendance, adherence and Power BI reporting experience.</p>
+  <a class="btn" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Call-centre forecasting on Fiverr</a>
+</div>
+</article>
+
+<aside class="related"><h2>Related</h2><ul>
+  <li><a href="/services/">Trading, WFM and analytics services | Sahil Thakur</a></li>
+</ul></aside>
+
+</main>
+<footer><div class="wrap">
+  Free tools by Sahil Thakur. Trading tools are educational and not financial advice; past or simulated results do not guarantee future results. · <a href="/guides/ea-works-in-backtest-fails-live/">Backtest vs live guide</a> · <a href="/guides/erlang-c-explained/">Erlang C guide</a> · <a href="https://www.fiverr.com/sarrugaming" rel="nofollow">Fiverr profile</a>
+</div></footer>
+</body>
+</html>

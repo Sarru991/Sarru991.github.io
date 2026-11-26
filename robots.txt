@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sarru991.github.io/sitemap.xml

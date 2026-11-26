@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free Erlang C Calculator: call-centre staffing and service level</title>
+<meta name="description" content="Free Erlang C calculator. Enter calls, handle time and service-level target to get agents needed, scheduled staff with shrinkage, occupancy and average speed of answer.">
+<link rel="canonical" href="https://sarru991.github.io/tools/erlang-c-calculator/">
+<meta property="og:title" content="Free Erlang C Calculator: call-centre staffing and service level">
+<meta property="og:description" content="Free Erlang C calculator. Enter calls, handle time and service-level target to get agents needed, scheduled staff with shrinkage, occupancy and average speed of answer.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sarru991.github.io/tools/erlang-c-calculator/">
+<meta property="og:site_name" content="Sahil Thakur">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Free Erlang C Calculator: call-centre staffing and service level", "description": "Free Erlang C calculator. Enter calls, handle time and service-level target to get agents needed, scheduled staff with shrinkage, occupancy and average speed of answer.", "url": "https://sarru991.github.io/tools/erlang-c-calculator/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "applicationCategory": "BusinessApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/services/">Sahil Thakur · Trading &amp; WFM tools</a>
+  <nav><a href="/tools/erlang-c-calculator/">Erlang C</a><a href="/tools/prop-firm-drawdown-calculator/">Prop drawdown</a><a href="/tools/backtest-red-flag-checklist/">Backtest check</a><a href="/services/">Services</a></nav>
+</div></header>
+<main class="wrap">
+<span class="pill">Free tool</span>
+<h1>Erlang C calculator for call-centre staffing</h1>
+<p class="lead">Enter your call volume, average handle time and service-level target. The calculator tells you how many agents you need on the phones, how many to schedule after shrinkage, and what service level and wait time to expect.</p>
+
+<div class="card">
+  <div class="grid">
+    <div><label for="calls">Calls in the interval</label><input id="calls" type="number" value="150" min="0"></div>
+    <div><label for="interval">Interval length (minutes)</label><select id="interval"><option>15</option><option>30</option><option selected>60</option></select></div>
+    <div><label for="aht">Average handle time (seconds)</label><input id="aht" type="number" value="300" min="1"></div>
+    <div><label for="sl">Service-level target (%)</label><input id="sl" type="number" value="80" min="1" max="99"></div>
+    <div><label for="t">Answer within (seconds)</label><input id="t" type="number" value="20" min="1"></div>
+    <div><label for="shrink">Shrinkage (%)</label><input id="shrink" type="number" value="30" min="0" max="90"></div>
+  </div>
+  <p style="margin-top:16px"><button onclick="calc()">Calculate staffing</button></p>
+  <div id="out" class="grid" style="margin-top:10px"></div>
+  <div id="tbl"></div>
+</div>
+
+<h2>How to read the result</h2>
+<ul>
+  <li><b>Agents on the phones</b> is the minimum number of people handling calls at the same time to hit your target.</li>
+  <li><b>Agents to schedule</b> adds shrinkage: breaks, meetings, training and absence. This is the number to put on the roster.</li>
+  <li><b>Occupancy</b> is how busy agents are. Above about 85-90% for long periods usually leads to burnout and attrition.</li>
+  <li><b>Average speed of answer (ASA)</b> is the average wait across all calls, including those answered immediately.</li>
+</ul>
+<p>The table under the result shows how service level changes with one or two agents more or fewer, which is useful when you have to justify headcount. For a full explanation with a worked example, read <a href="/guides/erlang-c-explained/">Erlang C explained</a>.</p>
+
+<div class="cta">
+  <h3>Need a full staffing plan, not one interval?</h3>
+  <p>I build interval-by-interval volume forecasts and Erlang C staffing plans from your call history, with a shift plan your team can update in Excel or Power BI. Background: former contact-centre team leader (attendance, adherence and Power BI reporting) and a LightGBM call-volume forecaster.</p>
+  <a class="btn" href="https://www.fiverr.com/sarrugaming" rel="nofollow">See the forecasting service on Fiverr</a>
+</div>
+
+<script>
+function erlangC(n, a) { if (n <= a) return 1; let term = 1, sum = 0; for (let k = 0; k < n; k++) { if (k > 0) term *= a / k; sum += term; } const top = term * a / n * n / (n - a); return top / (sum + top); }
+function sl(n, a, aht, t) { return 1 - erlangC(n, a) * Math.exp(-(n - a) * t / aht); }
+function asa(n, a, aht) { return erlangC(n, a) * aht / (n - a); }
+function calc() {
+  const calls = +document.getElementById('calls').value, iv = +document.getElementById('interval').value * 60;
+  const aht = +document.getElementById('aht').value, target = +document.getElementById('sl').value / 100;
+  const t = +document.getElementById('t').value, shrink = +document.getElementById('shrink').value / 100;
+  const out = document.getElementById('out'), tbl = document.getElementById('tbl');
+  if (calls <= 0 || aht <= 0) { out.innerHTML = '<p class="bad">Enter calls and handle time above zero.</p>'; tbl.innerHTML = ''; return; }
+  const a = calls * aht / iv; let n = Math.max(1, Math.ceil(a)); while (sl(n, a, aht, t) < target && n < 2000) n++;
+  const sched = Math.ceil(n / (1 - shrink));
+  const box = (lab, val) => `<div><div class="muted">${lab}</div><div class="result">${val}</div></div>`;
+  out.innerHTML = box('Agents on the phones', n) + box('Agents to schedule', sched) +
+    box('Service level', (sl(n, a, aht, t) * 100).toFixed(1) + '%') + box('Occupancy', (a / n * 100).toFixed(1) + '%') +
+    box('Avg speed of answer', asa(n, a, aht).toFixed(0) + ' s') + box('Traffic (Erlangs)', a.toFixed(2));
+  let rows = '';
+  for (let k = Math.max(Math.ceil(a + 0.0001), n - 2); k <= n + 2; k++) {
+    rows += `<tr${k === n ? ' style="font-weight:700"' : ''}><td>${k}</td><td>${(sl(k, a, aht, t) * 100).toFixed(1)}%</td><td>${(a / k * 100).toFixed(1)}%</td><td>${asa(k, a, aht).toFixed(0)} s</td></tr>`;
+  }
+  tbl.innerHTML = `<h3 style="margin-top:20px">What one more or one fewer agent does</h3><table><tr><th>Agents</th><th>Service level</th><th>Occupancy</th><th>ASA</th></tr>${rows}</table>`;
+}
+calc();
+</script>
+
+<aside class="related"><h2>Related</h2><ul>
+  <li><a href="/services/">Trading, WFM and analytics services | Sahil Thakur</a></li>
+</ul></aside>
+
+</main>
+<footer><div class="wrap">
+  Free tools by Sahil Thakur. Trading tools are educational and not financial advice; past or simulated results do not guarantee future results. · <a href="/guides/ea-works-in-backtest-fails-live/">Backtest vs live guide</a> · <a href="/guides/erlang-c-explained/">Erlang C guide</a> · <a href="https://www.fiverr.com/sarrugaming" rel="nofollow">Fiverr profile</a>
+</div></footer>
+</body>
+</html>

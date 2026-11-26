@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prop Firm Drawdown Calculator: daily loss limit and risk per trade</title>
+<meta name="description" content="Free prop-firm drawdown calculator. See how many losing trades break your daily and max loss limit, and simulate how often your risk settings breach a challenge.">
+<link rel="canonical" href="https://sarru991.github.io/tools/prop-firm-drawdown-calculator/">
+<meta property="og:title" content="Prop Firm Drawdown Calculator: daily loss limit and risk per trade">
+<meta property="og:description" content="Free prop-firm drawdown calculator. See how many losing trades break your daily and max loss limit, and simulate how often your risk settings breach a challenge.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sarru991.github.io/tools/prop-firm-drawdown-calculator/">
+<meta property="og:site_name" content="Sahil Thakur">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Prop Firm Drawdown Calculator: daily loss limit and risk per trade", "description": "Free prop-firm drawdown calculator. See how many losing trades break your daily and max loss limit, and simulate how often your risk settings breach a challenge.", "url": "https://sarru991.github.io/tools/prop-firm-drawdown-calculator/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "applicationCategory": "BusinessApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/services/">Sahil Thakur · Trading &amp; WFM tools</a>
+  <nav><a href="/tools/erlang-c-calculator/">Erlang C</a><a href="/tools/prop-firm-drawdown-calculator/">Prop drawdown</a><a href="/tools/backtest-red-flag-checklist/">Backtest check</a><a href="/services/">Services</a></nav>
+</div></header>
+<main class="wrap">
+<span class="pill">Free tool</span>
+<h1>Prop firm drawdown calculator</h1>
+<p class="lead">Check whether your risk settings can survive a prop-firm challenge. See how many losing trades in a row break the daily and maximum loss limits, and simulate thousands of trading days to estimate how often your settings would breach.</p>
+
+<div class="card">
+  <div class="grid">
+    <div><label for="acct">Account size ($)</label><input id="acct" type="number" value="100000"></div>
+    <div><label for="daily">Daily loss limit (%)</label><input id="daily" type="number" value="5" step="0.1"></div>
+    <div><label for="maxl">Maximum loss limit (%)</label><input id="maxl" type="number" value="10" step="0.1"></div>
+    <div><label for="risk">Risk per trade (%)</label><input id="risk" type="number" value="1" step="0.05"></div>
+    <div><label for="wr">Win rate (%)</label><input id="wr" type="number" value="45"></div>
+    <div><label for="rr">Average win ÷ average loss (R:R)</label><input id="rr" type="number" value="1.5" step="0.1"></div>
+    <div><label for="tpd">Trades per day</label><input id="tpd" type="number" value="4"></div>
+    <div><label for="days">Days to simulate (challenge length)</label><input id="days" type="number" value="30"></div>
+  </div>
+  <p style="margin-top:16px"><button onclick="run()">Calculate</button></p>
+  <div id="res" class="grid"></div>
+  <p id="advice" style="margin-top:12px"></p>
+  <p class="note">Simulation assumes independent trades with fixed risk, the limits measured from the starting balance of each day and of the account (static drawdown), and no commissions. Real results also depend on correlated trades, slippage and your firm's exact rules. Educational only, not financial advice.</p>
+</div>
+
+<h2>How to use the numbers</h2>
+<ul>
+  <li><b>Losses in a row to hit the daily limit:</b> if this is 3 or less, a single bad morning can end your challenge. Most traders who breach do it on one bad day, not slowly.</li>
+  <li><b>Breach chance</b> comes from 5,000 simulated challenges with your win rate, R:R and trade frequency. If it is above about 10-15%, reduce risk per trade or the number of trades per day.</li>
+  <li><b>Overlapping trades count together.</b> Three open trades at 1% each is 3% at risk at once. Treat them as one bigger trade when you read these numbers.</li>
+</ul>
+
+<div class="cta">
+  <h3>Want the limits enforced automatically?</h3>
+  <p>A risk-guard EA for MT5 can block new trades and close positions before your daily or maximum loss is reached, including open-trade drawdown. I build and test these, and I ran prop-firm challenge simulations to find safe position sizes for my own strategies.</p>
+  <a class="btn" href="https://www.fiverr.com/sarrugaming/build-an-automated-trading-algorithm-ea-for-your-strategy" rel="nofollow">See the risk-guard EA service on Fiverr</a>
+</div>
+
+<script>
+function run() {
+  const g = id => +document.getElementById(id).value;
+  const acct = g('acct'), daily = g('daily'), maxl = g('maxl'), risk = g('risk'), wr = g('wr') / 100, rr = g('rr'), tpd = Math.max(1, Math.round(g('tpd'))), days = Math.max(1, Math.round(g('days')));
+  if (risk <= 0) return;
+  const toDaily = Math.ceil(daily / risk - 1e-9), toMax = Math.ceil(maxl / risk - 1e-9);
+  let breach = 0; const N = 5000;
+  for (let s = 0; s < N; s++) {
+    let eq = 0, failed = false;
+    for (let d = 0; d < days && !failed; d++) {
+      let day = 0;
+      for (let k = 0; k < tpd; k++) {
+        day += Math.random() < wr ? risk * rr : -risk;
+        if (day <= -daily) { failed = true; break; }
+        if (eq + day <= -maxl) { failed = true; break; }
+      }
+      eq += day;
+      if (eq <= -maxl) failed = true;
+    }
+    if (failed) breach++;
+  }
+  const box = (l, v, cls) => `<div><div class="muted">${l}</div><div class="result ${cls || ''}">${v}</div></div>`;
+  const pct = breach / N * 100;
+  document.getElementById('res').innerHTML =
+    box('Risk per trade ($)', '$' + (acct * risk / 100).toLocaleString()) +
+    box('Losses in a row to hit daily limit', toDaily, toDaily <= 3 ? 'bad' : (toDaily <= 5 ? 'warn' : 'ok')) +
+    box('Losses in a row to hit max limit', toMax) +
+    box(`Breach chance in ${days} days`, pct.toFixed(1) + '%', pct > 15 ? 'bad' : (pct > 5 ? 'warn' : 'ok'));
+  const ev = wr * rr - (1 - wr);
+  let adv = `Expected result per trade: <b>${ev >= 0 ? '+' : ''}${ev.toFixed(2)}R</b>. `;
+  if (ev <= 0) adv += '<span class="bad">With this win rate and R:R the strategy loses on average, so no position size will reliably pass.</span> ';
+  if (pct > 15) adv += `Try risk per trade of ${(risk / 2).toFixed(2)}% and run again.`;
+  else if (pct > 5) adv += 'Borderline: consider slightly lower risk or fewer trades per day.';
+  else adv += 'These settings look survivable in the simulation, but watch overlapping trades.';
+  document.getElementById('advice').innerHTML = adv;
+}
+run();
+</script>
+
+<aside class="related"><h2>Related</h2><ul>
+  <li><a href="/tools/backtest-red-flag-checklist/">Backtest Red-Flag Checklist: is your EA backtest realistic?</a></li>
+  <li><a href="/services/">Trading, WFM and analytics services | Sahil Thakur</a></li>
+</ul></aside>
+
+</main>
+<footer><div class="wrap">
+  Free tools by Sahil Thakur. Trading tools are educational and not financial advice; past or simulated results do not guarantee future results. · <a href="/guides/ea-works-in-backtest-fails-live/">Backtest vs live guide</a> · <a href="/guides/erlang-c-explained/">Erlang C guide</a> · <a href="https://www.fiverr.com/sarrugaming" rel="nofollow">Fiverr profile</a>
+</div></footer>
+</body>
+</html>

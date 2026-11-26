@@ -1,0 +1,14 @@
+{
+  "_note": "Files written by the growth platform. Files not listed here are never touched by it.",
+  "files": [
+    "assets/site.css",
+    "guides/ea-works-in-backtest-fails-live/index.html",
+    "guides/erlang-c-explained/index.html",
+    "robots.txt",
+    "services/index.html",
+    "sitemap.xml",
+    "tools/backtest-red-flag-checklist/index.html",
+    "tools/erlang-c-calculator/index.html",
+    "tools/prop-firm-drawdown-calculator/index.html"
+  ]
+}

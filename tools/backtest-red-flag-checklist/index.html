@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backtest Red-Flag Checklist: is your EA backtest realistic?</title>
+<meta name="description" content="Free 12-point checklist to see if your trading backtest is realistic: costs, slippage, look-ahead bias, overfitting, sample size and out-of-sample testing.">
+<link rel="canonical" href="https://sarru991.github.io/tools/backtest-red-flag-checklist/">
+<meta property="og:title" content="Backtest Red-Flag Checklist: is your EA backtest realistic?">
+<meta property="og:description" content="Free 12-point checklist to see if your trading backtest is realistic: costs, slippage, look-ahead bias, overfitting, sample size and out-of-sample testing.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sarru991.github.io/tools/backtest-red-flag-checklist/">
+<meta property="og:site_name" content="Sahil Thakur">
+<link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Backtest Red-Flag Checklist: is your EA backtest realistic?", "description": "Free 12-point checklist to see if your trading backtest is realistic: costs, slippage, look-ahead bias, overfitting, sample size and out-of-sample testing.", "url": "https://sarru991.github.io/tools/backtest-red-flag-checklist/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "applicationCategory": "BusinessApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="/services/">Sahil Thakur · Trading &amp; WFM tools</a>
+  <nav><a href="/tools/erlang-c-calculator/">Erlang C</a><a href="/tools/prop-firm-drawdown-calculator/">Prop drawdown</a><a href="/tools/backtest-red-flag-checklist/">Backtest check</a><a href="/services/">Services</a></nav>
+</div></header>
+<main class="wrap">
+<span class="pill">Free tool</span>
+<h1>Backtest red-flag checklist</h1>
+<p class="lead">Tick every statement that is true for your strategy-tester backtest. Your score shows how much you can trust the result before risking real money or a prop-firm challenge.</p>
+
+<div class="card" id="list"></div>
+<div class="card">
+  <div class="muted">Your backtest trust score</div>
+  <div class="result" id="score">0 / 100</div>
+  <p id="verdict"></p>
+  <div id="fix"></div>
+</div>
+
+<h2>Why these checks matter</h2>
+<p>Most strategies that look great in a backtest fail live for a handful of reasons: costs set too low, signals that accidentally use information from the future, too few trades, and too many parameters tuned to the past. A good backtest is a tool for <b>rejecting</b> ideas cheaply, not for proving them. For the full explanation, read <a href="/guides/ea-works-in-backtest-fails-live/">why your EA works in backtest but fails live</a>.</p>
+
+<div class="cta">
+  <h3>Want a second pair of eyes on your backtest?</h3>
+  <p>I audit backtests for look-ahead bias, unrealistic costs, overfitting and missing out-of-sample tests, and compare results against random entries. In my own research I found and fixed three look-ahead bugs that had made losing strategies look profitable.</p>
+  <a class="btn" href="https://www.fiverr.com/sarrugaming/audit-your-trading-backtest-for-hidden-bugs" rel="nofollow">See the backtest audit service on Fiverr</a>
+</div>
+
+<script>
+const ITEMS = [
+  [12, "Spread is set to realistic or variable values, not the tester's tightest 'current' spread", "Re-run with the average live spread for your symbol and session (or 'every tick based on real ticks')."],
+  [8, "Commission per lot is included", "Add your broker's commission; it often removes a third of a scalper's profit."],
+  [8, "Slippage is modelled on entries and stop-loss exits", "Add adverse slippage, especially around news and session opens."],
+  [12, "Signals only use fully closed candles (no current-bar close, high or low)", "Check every indicator call uses shift 1 or later; current-bar values cause look-ahead bias."],
+  [10, "The test has at least 200 trades", "Under 100-200 trades the result can easily be luck. Test a longer period or more symbols."],
+  [10, "The strategy was tested on data it was NOT tuned on (out-of-sample)", "Keep the last 25-30% of data untouched, tune on the rest, then test once on the hold-out."],
+  [8, "It has 5 or fewer tuned parameters", "Every extra parameter makes overfitting easier. Remove the ones that barely change results."],
+  [8, "Results are positive in most individual years, not just in total", "If one year makes all the profit, the edge is probably not stable."],
+  [6, "Small parameter changes (+/-10%) give similar results", "If results collapse when a value moves slightly, the settings are fitted to noise."],
+  [6, "Tick data quality is high (real ticks, few modelling errors)", "Use real-tick data; '1 minute OHLC' or 'open prices only' can fake intrabar fills."],
+  [6, "You compared it with random entries using the same stop and target", "If random entries earn about the same, the signal adds no real edge."],
+  [6, "A demo or small live account roughly matches the backtest", "Run it on demo for a few weeks and compare trade by trade."]
+];
+const list = document.getElementById('list');
+list.innerHTML = ITEMS.map((it, i) => `<label class="check"><input type="checkbox" id="c${i}" onchange="score()"><span>${it[1]}</span></label>`).join('');
+function score() {
+  let s = 0, fixes = [];
+  ITEMS.forEach((it, i) => { if (document.getElementById('c' + i).checked) s += it[0]; else fixes.push(it); });
+  document.getElementById('score').textContent = s + ' / 100';
+  let v = s >= 80 ? '<span class="ok">Strong backtest.</span> Still forward-test on demo before going live.'
+        : s >= 50 ? '<span class="warn">Some red flags.</span> Fix the items below before trusting the numbers.'
+        : '<span class="bad">High risk.</span> The result may be mostly costs, luck or look-ahead bias.';
+  document.getElementById('verdict').innerHTML = v;
+  fixes.sort((a, b) => b[0] - a[0]);
+  document.getElementById('fix').innerHTML = fixes.length ? '<h3>Fix first</h3><ol>' + fixes.slice(0, 5).map(f => `<li>${f[2]}</li>`).join('') + '</ol>' : '';
+}
+score();
+</script>
+
+<aside class="related"><h2>Related</h2><ul>
+  <li><a href="/tools/prop-firm-drawdown-calculator/">Prop Firm Drawdown Calculator: daily loss limit and risk per trade</a></li>
+  <li><a href="/services/">Trading, WFM and analytics services | Sahil Thakur</a></li>
+</ul></aside>
+
+</main>
+<footer><div class="wrap">
+  Free tools by Sahil Thakur. Trading tools are educational and not financial advice; past or simulated results do not guarantee future results. · <a href="/guides/ea-works-in-backtest-fails-live/">Backtest vs live guide</a> · <a href="/guides/erlang-c-explained/">Erlang C guide</a> · <a href="https://www.fiverr.com/sarrugaming" rel="nofollow">Fiverr profile</a>
+</div></footer>
+</body>
+</html>
