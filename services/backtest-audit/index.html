@@ -19,7 +19,7 @@
 <body class="layout-service">
 <header class="wrap nav">
   <a class="logo" href="/">SAHIL.</a>
-  <nav><a href="/services/" aria-current="page">Services</a><a href="/services/#tools">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
+  <nav><a class="keep" href="/services/" aria-current="page">Services</a><a href="/services/#tools">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
 </header>
 <main class="wrap">
 <p class="crumb"><a href="/services/">Services</a> / Trading backtest audit</p>
@@ -70,6 +70,18 @@
       <li><h3 style="font:700 21px var(--text);margin:0 0 6px">Send the strategy</h3><p class="mute" style="margin:0">MT4/MT5 code (MQL), Python, Pine Script logic or a written rule set, plus trade history or price data.</p></li>
       <li><h3 style="font:700 21px var(--text);margin:0 0 6px">Get the report</h3><p class="mute" style="margin:0">The findings for the package you chose, in plain English.</p></li>
     </ol>
+  </section>
+
+  <section style="padding-top:0">
+    <h2>How to check for look-ahead bias</h2>
+    <div class="checks">
+      <div class="check"><h3>Use closed candles only</h3><p>Every signal should read bars that had finished when the trade was placed (shift 1 or later), never the current bar's close, high or low.</p></div>
+      <div class="check"><h3>Delay every entry by one bar</h3><p>A real edge survives a one-bar delay. An edge built on look-ahead collapses.</p></div>
+      <div class="check"><h3>Use point-in-time data</h3><p>Only data that existed on each trade's date, not values revised or published later.</p></div>
+      <div class="check"><h3>Compare with random entries</h3><p>If random entries with the same stop and target earn about the same, the signal adds nothing.</p></div>
+    </div>
+    <p class="mute" style="margin-top:22px">Worked example: in my own research the entry used candles that had not closed yet. The backtest showed +0.45R per trade; fixed, the same strategy returned &minus;0.16R. Check your own backtest first with the free <a href="/tools/backtest-red-flag-checklist/">backtest red-flag checklist</a>, a 12-point tool that scores how far the result can be trusted.</p>
+    <p class="note">Last updated: 26 November 2026.</p>
   </section>
 
   <section style="padding-top:0">

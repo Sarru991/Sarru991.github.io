@@ -14,11 +14,12 @@
 <link rel="preload" href="/assets/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/services.css">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Prop Firm Drawdown Calculator: daily loss and risk per trade", "description": "Free prop-firm drawdown calculator: how many losing trades break your daily and max loss limits, and how often your risk settings breach a challenge.", "url": "https://sarru991.github.io/tools/prop-firm-drawdown-calculator/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "applicationCategory": "BusinessApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "name": "Questions: Prop Firm Drawdown Calculator: daily loss and risk per trade", "url": "https://sarru991.github.io/tools/prop-firm-drawdown-calculator/", "mainEntity": [{"@type": "Question", "name": "Do open losing trades count toward the daily limit?", "acceptedAnswer": {"@type": "Answer", "text": "At many firms, yes: when the limit is measured on equity, floating losses count. This calculator counts each losing trade's full loss, so treat open trades as already lost when you read it."}}, {"@type": "Question", "name": "When does the daily limit reset?", "acceptedAnswer": {"@type": "Answer", "text": "At the reset time your firm states, often in a specific time zone. Check it in the firm's rules before you trade near the reset."}}, {"@type": "Question", "name": "What breach chance is too high?", "acceptedAnswer": {"@type": "Answer", "text": "If the breach chance is above about 10-15%, reduce risk per trade or the number of trades per day, and run the calculator again."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is an educational tool; results depend on your strategy, correlated trades, slippage and your firm's exact rules."}}]}</script>
 </head>
 <body class="layout-page">
 <header class="wrap nav">
   <a class="logo" href="/">SAHIL.</a>
-  <nav><a href="/services/">Services</a><a href="/services/#tools" aria-current="page">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
+  <nav><a class="keep" href="/services/">Services</a><a href="/services/#tools" aria-current="page">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
 </header>
 <main class="wrap page">
 <span class="pill">Free tool</span>
@@ -48,6 +49,45 @@
   <li><b>Breach chance</b> comes from 5,000 simulated challenges with your win rate, R:R and trade frequency. If it is above about 10-15%, reduce risk per trade or the number of trades per day.</li>
   <li><b>Overlapping trades count together.</b> Three open trades at 1% each is 3% at risk at once. Treat them as one bigger trade when you read these numbers.</li>
 </ul>
+
+
+<h2>Worked example: a $100,000 challenge</h2>
+<p>With the default inputs (account $100,000, daily loss limit 5%, maximum loss limit 10%, risk 1% per trade):</p>
+<ul>
+  <li><b>Risk per trade:</b> 1% of $100,000 = <b>$1,000</b>.</li>
+  <li><b>Losses in a row to the daily limit:</b> 5% &divide; 1% = <b>5</b>. To the maximum limit: 10% &divide; 1% = <b>10</b>.</li>
+  <li><b>Expected result per trade</b> with a 45% win rate and 1.5 R:R: 0.45 &times; 1.5 &minus; 0.55 = <b>+0.13R</b>.</li>
+  <li><b>Breach chance</b> over 30 days at 4 trades a day: about <b>15%</b>.</li>
+</ul>
+<p>Halve the risk to <b>0.5% per trade</b> and it takes 10 losses in a row to hit the daily limit and 20 to hit the
+  maximum, and the breach chance falls to about <b>2%</b>. The expected result per trade in R stays the same, but each R
+  is worth half as much, so reaching the profit target takes longer.</p>
+<p class="note">Breach chances are this calculator's own simulation averaged over 200,000 runs; a single run on this page
+  can differ by about a percentage point.</p>
+
+<h2>Daily vs maximum drawdown</h2>
+<ul>
+  <li><b>Daily loss limit:</b> how much you may lose in one trading day, usually measured from that day's starting
+    balance or equity, and reset at the firm's stated time.</li>
+  <li><b>Maximum loss limit:</b> how far the account may fall in total. <b>Static</b> limits are measured from the
+    starting balance; <b>trailing</b> limits follow your highest equity, which is harsher once you are in profit.</li>
+  <li>This calculator uses <b>static</b> limits. If your firm uses a trailing limit or measures on equity, check its
+    rulebook and treat these numbers as the best case.</li>
+</ul>
+<p>In my own prop-firm simulations (591 simulated challenges), fixing stacked trades took the breach rate from
+  <b>72% to 0%</b>: risk that adds up across open trades can breach a challenge even when each trade looks small.</p>
+
+<h2>Questions</h2>
+<details><summary>Do open losing trades count toward the daily limit?</summary><p>At many firms, yes: when the limit is
+  measured on equity, floating losses count. This calculator counts each losing trade's full loss, so treat open trades
+  as already lost when you read it.</p></details>
+<details><summary>When does the daily limit reset?</summary><p>At the reset time your firm states, often in a specific
+  time zone. Check it in the firm's rules before you trade near the reset.</p></details>
+<details><summary>What breach chance is too high?</summary><p>If the breach chance is above about 10-15%, reduce risk per
+  trade or the number of trades per day, and run the calculator again.</p></details>
+<details><summary>Is this financial advice?</summary><p>No. It is an educational tool; results depend on your strategy,
+  correlated trades, slippage and your firm's exact rules.</p></details>
+<p class="note">Last updated: 26 November 2026.</p>
 
 <div class="cta">
   <h3>Want the limits enforced automatically?</h3>

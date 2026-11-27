@@ -14,11 +14,12 @@
 <link rel="preload" href="/assets/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/services.css">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Free Erlang C Calculator for call-centre staffing", "description": "Free Erlang C calculator: enter calls, handle time and a service-level target to get agents needed, staff with shrinkage, occupancy and answer speed.", "url": "https://sarru991.github.io/tools/erlang-c-calculator/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "applicationCategory": "BusinessApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "name": "Questions: Free Erlang C Calculator for call-centre staffing", "url": "https://sarru991.github.io/tools/erlang-c-calculator/", "mainEntity": [{"@type": "Question", "name": "What is Erlang C used for?", "acceptedAnswer": {"@type": "Answer", "text": "To find the minimum number of agents that answers a target share of calls within a target time, for one queue and one interval, given the calls you expect and how long they take."}}, {"@type": "Question", "name": "Why add shrinkage?", "acceptedAnswer": {"@type": "Answer", "text": "Erlang C gives the people needed on the phones at the same time. Breaks, meetings, training and absence take paid time away, so you schedule more: on the phones ÷ (1 − shrinkage)."}}, {"@type": "Question", "name": "Does Erlang C work for chat and email?", "acceptedAnswer": {"@type": "Answer", "text": "Not directly. It assumes one inbound queue where each agent handles one contact at a time. Chats handled several at once, and email backlogs, need other methods."}}, {"@type": "Question", "name": "Why can Erlang C overstaff?", "acceptedAnswer": {"@type": "Answer", "text": "It assumes nobody hangs up. When many callers abandon, the real queue is shorter than the formula expects, so it can show slightly more agents than you need. Erlang A models abandonment."}}, {"@type": "Question", "name": "Is my data sent anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The calculator runs in your browser; nothing you type is sent or stored."}}]}</script>
 </head>
 <body class="layout-page">
 <header class="wrap nav">
   <a class="logo" href="/">SAHIL.</a>
-  <nav><a href="/services/">Services</a><a href="/services/#tools" aria-current="page">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
+  <nav><a class="keep" href="/services/">Services</a><a href="/services/#tools" aria-current="page">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
 </header>
 <main class="wrap page">
 <span class="pill">Free tool</span>
@@ -47,6 +48,51 @@
   <li><b>Average speed of answer (ASA)</b> is the average wait across all calls, including those answered immediately.</li>
 </ul>
 <p>The table under the result shows how service level changes with one or two agents more or fewer, which is useful when you have to justify headcount. For a full explanation with a worked example, read <a href="/guides/erlang-c-explained/">Erlang C explained</a>.</p>
+
+
+<h2>What is the Erlang C formula?</h2>
+<p>Erlang C is the queueing formula contact centres use to work out how many agents they need. It takes the traffic
+  you expect and tells you the chance a caller has to wait, and from that the share of calls answered within your
+  target time. The calculator above uses exactly these steps:</p>
+<ul>
+  <li><b>Traffic (A, in Erlangs)</b> = calls &times; average handle time &divide; interval length.</li>
+  <li><b>Chance a call waits (P<sub>w</sub>)</b> = <code>(A<sup>N</sup>/N! &times; N/(N&minus;A)) &divide; (&Sigma;<sub>k=0..N&minus;1</sub> A<sup>k</sup>/k! + A<sup>N</sup>/N! &times; N/(N&minus;A))</code>, for N agents.</li>
+  <li><b>Service level</b> = 1 &minus; P<sub>w</sub> &times; e<sup>&minus;(N&minus;A) &times; t / AHT</sup>, where t is your answer-within target.</li>
+  <li><b>Average speed of answer</b> = P<sub>w</sub> &times; AHT &divide; (N &minus; A), and <b>occupancy</b> = A &divide; N.</li>
+</ul>
+
+<h2>Worked example: call centre staffing for one hour</h2>
+<p>The default inputs above: 150 calls in 60 minutes, 300-second handle time, target 80% of calls answered within
+  20 seconds, 30% shrinkage. Traffic = 150 &times; 300 &divide; 3,600 = <b>12.5 Erlangs</b>.</p>
+<table>
+  <tr><th>Agents</th><th>Chance a call waits</th><th>Service level (20 s)</th><th>Occupancy</th><th>Avg speed of answer</th></tr>
+  <tr><td>15</td><td>40.1%</td><td>66.0%</td><td>83.3%</td><td>48 s</td></tr>
+  <tr><td>16</td><td>26.4%</td><td>79.1%</td><td>78.1%</td><td>23 s</td></tr>
+  <tr><td><b>17</b></td><td><b>16.8%</b></td><td><b>87.5%</b></td><td><b>73.5%</b></td><td><b>11 s</b></td></tr>
+  <tr><td>18</td><td>10.4%</td><td>92.8%</td><td>69.4%</td><td>6 s</td></tr>
+</table>
+<p><b>17 agents on the phones</b> meets 80/20; 16 falls just short. With 30% shrinkage you schedule
+  17 &divide; 0.70 = 24.3, so <b>25 agents</b> (always round up).</p>
+
+<h2>Call centre staffing in three steps</h2>
+<ol>
+  <li><b>Forecast each interval</b> (15 or 30 minutes) from your own call history, with day-of-week and seasonal patterns.</li>
+  <li><b>Run Erlang C for every interval</b> to get agents needed on the phones.</li>
+  <li><b>Add shrinkage and build shifts</b> that cover each interval's requirement.</li>
+</ol>
+
+<h2>Questions</h2>
+<details><summary>What is Erlang C used for?</summary><p>To find the minimum number of agents that answers a target share
+  of calls within a target time, for one queue and one interval, given the calls you expect and how long they take.</p></details>
+<details><summary>Why add shrinkage?</summary><p>Erlang C gives the people needed on the phones at the same time.
+  Breaks, meetings, training and absence take paid time away, so you schedule more: on the phones &divide; (1 &minus; shrinkage).</p></details>
+<details><summary>Does Erlang C work for chat and email?</summary><p>Not directly. It assumes one inbound queue where each
+  agent handles one contact at a time. Chats handled several at once, and email backlogs, need other methods.</p></details>
+<details><summary>Why can Erlang C overstaff?</summary><p>It assumes nobody hangs up. When many callers abandon, the real
+  queue is shorter than the formula expects, so it can show slightly more agents than you need. Erlang A models abandonment.</p></details>
+<details><summary>Is my data sent anywhere?</summary><p>No. The calculator runs in your browser; nothing you type is sent
+  or stored.</p></details>
+<p class="note">Last updated: 26 November 2026.</p>
 
 <div class="cta">
   <h3>Need a full staffing plan, not one interval?</h3>

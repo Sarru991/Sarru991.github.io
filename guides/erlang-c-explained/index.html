@@ -14,11 +14,12 @@
 <link rel="preload" href="/assets/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/services.css">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "name": "Erlang C explained: a worked call-centre staffing example", "description": "Erlang C explained in plain English with a worked example: traffic intensity, service level, shrinkage and how many agents you really need to schedule.", "url": "https://sarru991.github.io/guides/erlang-c-explained/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "headline": "Erlang C explained: a worked call-centre staffing example", "dateModified": "2026-11-26"}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "name": "Questions: Erlang C explained: a worked call-centre staffing example", "url": "https://sarru991.github.io/guides/erlang-c-explained/", "mainEntity": [{"@type": "Question", "name": "What is an Erlang?", "acceptedAnswer": {"@type": "Answer", "text": "One hour of call traffic per hour: the work that would keep one agent busy all the time. 12.5 Erlangs means enough calls to keep 12.5 agents busy if calls arrived perfectly evenly."}}, {"@type": "Question", "name": "What service level should I target?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your business and your contracts. \"80% within 20 seconds\", used in this example, is a common target, not a rule."}}, {"@type": "Question", "name": "Why round scheduled staff up?", "acceptedAnswer": {"@type": "Answer", "text": "You cannot schedule part of a person, and rounding down puts you under the number Erlang C says you need for the target."}}, {"@type": "Question", "name": "How often should I recalculate?", "acceptedAnswer": {"@type": "Answer", "text": "For every 15- or 30-minute interval, because call volume changes through the day. One daily average hides the busy hours."}}]}</script>
 </head>
 <body class="layout-page">
 <header class="wrap nav">
   <a class="logo" href="/">SAHIL.</a>
-  <nav><a href="/services/">Services</a><a href="/services/#tools">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/" aria-current="page">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
+  <nav><a class="keep" href="/services/">Services</a><a href="/services/#tools">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/" aria-current="page">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
 </header>
 <main class="wrap page">
 <article>
@@ -66,6 +67,28 @@
 
 <h2>Try it with your own numbers</h2>
 <p>Use the free <a href="/tools/erlang-c-calculator/">Erlang C calculator</a>: enter your calls, AHT, target and shrinkage, and it shows agents needed, scheduled staff, occupancy and average speed of answer, plus what one agent more or fewer does.</p>
+
+
+<h2>Try the example in the calculator</h2>
+<p>The <a href="/tools/erlang-c-calculator/">free Erlang C calculator</a> opens with exactly this example (150 calls,
+  300 seconds, 80/20, 30% shrinkage): it shows 17 agents on the phones, 25 to schedule, 87.5% service level, 73.5%
+  occupancy and an 11-second average speed of answer. Change any number to see your own interval.</p>
+
+<h2>Erlang C vs Erlang A</h2>
+<p>Erlang C assumes every caller waits until answered. Erlang A adds callers who hang up after a while. When few
+  callers abandon, the two give almost the same answer; when many do, Erlang C asks for slightly more agents than you
+  need, which is the safer mistake for planning.</p>
+
+<h2>Questions</h2>
+<details><summary>What is an Erlang?</summary><p>One hour of call traffic per hour: the work that would keep one agent
+  busy all the time. 12.5 Erlangs means enough calls to keep 12.5 agents busy if calls arrived perfectly evenly.</p></details>
+<details><summary>What service level should I target?</summary><p>It depends on your business and your contracts.
+  "80% within 20 seconds", used in this example, is a common target, not a rule.</p></details>
+<details><summary>Why round scheduled staff up?</summary><p>You cannot schedule part of a person, and rounding down puts
+  you under the number Erlang C says you need for the target.</p></details>
+<details><summary>How often should I recalculate?</summary><p>For every 15- or 30-minute interval, because call volume
+  changes through the day. One daily average hides the busy hours.</p></details>
+<p class="note">Last updated: 26 November 2026.</p>
 
 <div class="cta">
   <h3>Need a forecast and staffing plan for every interval?</h3>

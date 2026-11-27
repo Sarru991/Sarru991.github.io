@@ -14,11 +14,12 @@
 <link rel="preload" href="/assets/fonts/figtree-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/services.css">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Backtest Red-Flag Checklist: is your EA backtest realistic?", "description": "Free 12-point checklist to see if your trading backtest is realistic: costs, slippage, look-ahead bias, overfitting, sample size and out-of-sample testing.", "url": "https://sarru991.github.io/tools/backtest-red-flag-checklist/", "inLanguage": "en", "author": {"@type": "Person", "name": "Sahil Thakur"}, "applicationCategory": "BusinessApplication", "operatingSystem": "Any", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "name": "Questions: Backtest Red-Flag Checklist: is your EA backtest realistic?", "url": "https://sarru991.github.io/tools/backtest-red-flag-checklist/", "mainEntity": [{"@type": "Question", "name": "How many trades does a backtest need?", "acceptedAnswer": {"@type": "Answer", "text": "This checklist asks for at least 200. Under about 100-200 trades, a good result can easily be luck."}}, {"@type": "Question", "name": "What is out-of-sample testing?", "acceptedAnswer": {"@type": "Answer", "text": "Tuning the strategy on one part of the data and testing it once on data it never saw, for example the last 25-30% of the history."}}, {"@type": "Question", "name": "What is look-ahead bias?", "acceptedAnswer": {"@type": "Answer", "text": "Using information that was not available when the trade would have been placed, such as the close of a candle that has not finished. It makes backtests look far better than live trading."}}, {"@type": "Question", "name": "Does a high score mean the strategy will make money?", "acceptedAnswer": {"@type": "Answer", "text": "No. A high score means the backtest is more trustworthy, not that the strategy is profitable. Forward-test on demo before trading live."}}]}</script>
 </head>
 <body class="layout-page">
 <header class="wrap nav">
   <a class="logo" href="/">SAHIL.</a>
-  <nav><a href="/services/">Services</a><a href="/services/#tools" aria-current="page">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
+  <nav><a class="keep" href="/services/">Services</a><a href="/services/#tools" aria-current="page">Free tools</a><a href="/guides/ea-works-in-backtest-fails-live/">Guides</a><a class="keep" href="https://www.fiverr.com/sarrugaming" rel="nofollow">Hire me</a></nav>
 </header>
 <main class="wrap page">
 <span class="pill">Free tool</span>
@@ -35,6 +36,47 @@
 
 <h2>Why these checks matter</h2>
 <p>Most strategies that look great in a backtest fail live for a handful of reasons: costs set too low, signals that accidentally use information from the future, too few trades, and too many parameters tuned to the past. A good backtest is a tool for <b>rejecting</b> ideas cheaply, not for proving them. For the full explanation, read <a href="/guides/ea-works-in-backtest-fails-live/">why your EA works in backtest but fails live</a>.</p>
+
+
+<h2>How the score works</h2>
+<p>The 12 checks add up to 100 points. The biggest weights go to the mistakes that most often turn a losing strategy
+  into a winning backtest: a realistic spread (12 points), signals that only use fully closed candles (12), at least
+  200 trades (10) and an out-of-sample test (10). <b>80 or more</b> is a strong backtest, <b>50 to 79</b> has red flags
+  to fix first, and <b>under 50</b> means the result may be mostly costs, luck or look-ahead bias.</p>
+
+<h2>Worked example: one unchecked box</h2>
+<p>In my own research, a strategy that looked validated returned <b>+0.45R per trade</b>. Its entry read candles that
+  had not closed yet: the "signals only use fully closed candles" check. After fixing that one bug, the same strategy
+  returned <b>&minus;0.16R per trade</b>. One unchecked box was the difference between a winning and a losing system.</p>
+
+<h2>The 12 checks and what to do if one fails</h2>
+<table>
+  <tr><th>Check</th><th>Points</th><th>If it fails</th></tr>
+  <tr><td>Realistic or variable spread</td><td>12</td><td>Re-run with the average live spread for your symbol and session, or real ticks.</td></tr>
+  <tr><td>Commission included</td><td>8</td><td>Add your broker's commission per lot.</td></tr>
+  <tr><td>Slippage on entries and stop-loss exits</td><td>8</td><td>Add adverse slippage, especially around news and session opens.</td></tr>
+  <tr><td>Signals use only fully closed candles</td><td>12</td><td>Use shift 1 or later in every indicator call.</td></tr>
+  <tr><td>At least 200 trades</td><td>10</td><td>Test a longer period or more symbols.</td></tr>
+  <tr><td>Tested out-of-sample</td><td>10</td><td>Keep the last 25-30% of data untouched; test it once at the end.</td></tr>
+  <tr><td>5 or fewer tuned parameters</td><td>8</td><td>Remove parameters that barely change results.</td></tr>
+  <tr><td>Positive in most individual years</td><td>8</td><td>If one year makes all the profit, the edge is probably not stable.</td></tr>
+  <tr><td>Stable when parameters move &plusmn;10%</td><td>6</td><td>Results that collapse are fitted to noise.</td></tr>
+  <tr><td>High tick-data quality</td><td>6</td><td>Use real-tick data, not "1 minute OHLC" or "open prices only".</td></tr>
+  <tr><td>Compared with random entries</td><td>6</td><td>If random entries earn about the same, the signal adds no edge.</td></tr>
+  <tr><td>Demo or small live account matches</td><td>6</td><td>Forward-test for a few weeks and compare trade by trade.</td></tr>
+</table>
+
+<h2>Questions</h2>
+<details><summary>How many trades does a backtest need?</summary><p>This checklist asks for at least 200. Under about
+  100-200 trades, a good result can easily be luck.</p></details>
+<details><summary>What is out-of-sample testing?</summary><p>Tuning the strategy on one part of the data and testing it
+  once on data it never saw, for example the last 25-30% of the history.</p></details>
+<details><summary>What is look-ahead bias?</summary><p>Using information that was not available when the trade would
+  have been placed, such as the close of a candle that has not finished. It makes backtests look far better than live
+  trading.</p></details>
+<details><summary>Does a high score mean the strategy will make money?</summary><p>No. A high score means the backtest is
+  more trustworthy, not that the strategy is profitable. Forward-test on demo before trading live.</p></details>
+<p class="note">Last updated: 26 November 2026.</p>
 
 <div class="cta">
   <h3>Want a second pair of eyes on your backtest?</h3>
